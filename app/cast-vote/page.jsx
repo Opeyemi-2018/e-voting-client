@@ -9,6 +9,7 @@ import { IoPersonCircleSharp } from "react-icons/io5";
 const CastVotePage = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
@@ -26,37 +27,90 @@ const CastVotePage = () => {
 
     fetchCandidates();
   }, []);
-  useEffect(() => {
-    const speak = (text) => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.rate = 1;
-      speechSynthesis.speak(utterance);
-    };
 
-    speak("Welcome to the voting page");
-  }, []);
+  // Filter candidates by category
+  const presidents = candidates.filter(
+    (candidate) => candidate.category.toLowerCase() === "president"
+  );
+  const secretaries = candidates.filter(
+    (candidate) => candidate.category.toLowerCase() === "secretary"
+  );
+
+  // Generate speech when candidates are fetched
+  useEffect(() => {
+    if (candidates.length > 0) {
+      const speak = (text) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        utterance.rate = 1;
+        speechSynthesis.speak(utterance);
+      };
+
+      const presidentNames = presidents.map((p) => p.name).join(", ") || "no candidates";
+      const secretaryNames = secretaries.map((s) => s.name).join(", ") || "no candidates";
+
+      const message = `Welcome to the voting page. We have ${presidentNames} contesting for the post of  president. We have ${secretaryNames} as secretary.`;
+      speak(message);
+    }
+  }, [candidates]);
 
   return (
-    <div className="max-w-7xl mx-auto mt-20 h-screen ">
+    <div className="h-screen">
       <ToastContainer />
-      <h2 className="text-2xl font-bold">This is the cast vote page</h2>
+      <h2 className="text-2xl text-center font-bold bg-[#e57226] uppercase text-white w-full py-7">
+        Welcome to the voting phase
+      </h2>
 
       <div>
         {loading ? (
           <div className="spinner flex-col gap-6 flex items-center justify-center">
-            <p>please wait while your data load</p>
+            <p>Please wait while your data loads</p>
             <ClipLoader color="#e57226" size={50} loading={loading} />
           </div>
         ) : (
-          <div className="grid grid-cols-4 mt-20">
-           { candidates.map((candidate) => (
-            <div key={candidate._id} className=" flex items-center flex-col gap-2  capitalize  shadow-md p-3">
-                <IoPersonCircleSharp size={50}/>
-              <p>{candidate.name}</p>
-              <p>{candidate.category}</p>
-            </div>
-            ))}
+          <div className="mt-10 flex items-center flex-col">
+            {/* President Candidates */}
+            {presidents.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold mb-4 text-center">
+                  President Candidates
+                </h3>
+                <div className="flex items-center md:gap-20 gap-4 px-3">
+                  {presidents.map((candidate) => (
+                    <div
+                      key={candidate._id}
+                      className="flex items-center flex-col gap-2 capitalize border border-[#e57226] rounded-md shadow-md px-12 py-10"
+                    >
+                      <IoPersonCircleSharp size={50} />
+                      <p>{candidate.name}</p>
+                      <p>{candidate.category}</p>
+                      {/* <p>{candidate.votes}</p> */}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Secretary Candidates */}
+            {secretaries.length > 0 && (
+              <div className="mt-12">
+                <h3 className="text-xl font-bold mb-4 text-center">
+                  Secretary Candidates
+                </h3>
+                <div className="flex items-center md:gap-20 gap-4 px-3">
+                  {secretaries.map((candidate) => (
+                    <div
+                      key={candidate._id}
+                      className="flex items-center flex-col gap-2 capitalize shadow-md border border-[#e57226] rounded-md px-12 py-10"
+                    >
+                      <IoPersonCircleSharp size={50} />
+                      <p>{candidate.name}</p>
+                      <p>{candidate.category}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

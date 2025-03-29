@@ -3,7 +3,7 @@ import Login from "./components/login";
 
 const page = () => {
   return (
-    <div className="bg-[#f8f6f4]">
+    <div className="bg-[#f0e1d3]">
       <Login />
     </div>
   );
