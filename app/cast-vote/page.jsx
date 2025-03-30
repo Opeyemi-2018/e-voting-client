@@ -46,10 +46,12 @@ const CastVotePage = () => {
         speechSynthesis.speak(utterance);
       };
 
-      const presidentNames = presidents.map((p) => p.name).join(", ") || "no candidates";
-      const secretaryNames = secretaries.map((s) => s.name).join(", ") || "no candidates";
+      const presidentNames =
+        presidents.map((p) => p.name).join(", ") || "no candidates";
+      const secretaryNames =
+        secretaries.map((s) => s.name).join(", ") || "no candidates";
 
-      const message = `Welcome to the voting page. We have ${presidentNames} contesting for the post of  president. We have ${secretaryNames} as secretary.`;
+      const message = `Welcome to the voting page. We have ${presidentNames} contesting for the post of president. We have ${secretaryNames} as secretary.`;
       speak(message);
     }
   }, [candidates]);
@@ -63,10 +65,14 @@ const CastVotePage = () => {
 
       <div>
         {loading ? (
-          <div className="spinner flex-col gap-6 flex items-center justify-center">
+          <div className="spinner flex-col gap-6 flex items-center h-screen justify-center">
             <p>Please wait while your data loads</p>
             <ClipLoader color="#e57226" size={50} loading={loading} />
           </div>
+        ) : presidents.length === 0 ? (
+          <p className="text-center mt-20 text-gray-500 text-3xl font-semibold">
+            No candidates available
+          </p>
         ) : (
           <div className="mt-10 flex items-center flex-col">
             {/* President Candidates */}
@@ -84,7 +90,6 @@ const CastVotePage = () => {
                       <IoPersonCircleSharp size={50} />
                       <p>{candidate.name}</p>
                       <p>{candidate.category}</p>
-                      {/* <p>{candidate.votes}</p> */}
                     </div>
                   ))}
                 </div>
