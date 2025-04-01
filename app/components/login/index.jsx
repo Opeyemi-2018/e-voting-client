@@ -2,11 +2,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useVoter } from "@/app/context";
 
 const Login = () => {
   const [voterID, setVoterID] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { setVoterID: setGlobalVoterID } = useVoter(); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,6 +28,7 @@ const Login = () => {
       );
 
       if (res.data.success) {
+        setGlobalVoterID(voterID.trim().toUpperCase()); // Store voter ID in context
         router.push("/cast-vote");
       } else {
         setError("Invalid or already used voter ID.");

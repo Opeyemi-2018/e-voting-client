@@ -6,31 +6,28 @@ import { ClipLoader } from "react-spinners";
 import axios from "axios";
 import { IoPersonCircleSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { useVoter } from "@/app/context";
 
 const CastVotePage = () => {
+  const { voterID } = useVoter();
   const [candidates, setCandidates] = useState([]);
+  const [selectedVotes, setSelectedVotes] = useState({});
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  const speak = (text) => {
-    return new Promise((resolve) => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      utterance.rate = 1;
-      utterance.onend = resolve;
-      speechSynthesis.speak(utterance);
-    });
-  };
-
   useEffect(() => {
-    speak("Welcome to the voting phase");
-  }, []);
-
-  useEffect(() => {
+    if (!voterID) {
+      toast.error("Unauthorized access. Please log in first.");
+      router.push("/"); // Redirect if no voter ID
+      return;
+    }
+  
     const fetchCandidates = async () => {
       try {
         setLoading(true);
         const res = await axios.get("http://localhost:5000/api/candidate/get-candidate");
+        console.log(res.data); // Check if the API is returning correct candidate data
         setCandidates(res.data);
       } catch (error) {
         toast.error(error.response?.data?.msg || "Failed to fetch candidates");
@@ -38,95 +35,75 @@ const CastVotePage = () => {
         setLoading(false);
       }
     };
+  
     fetchCandidates();
-  }, []);
-
-  const presidents = candidates.filter((c) => c.category.toLowerCase() === "president");
-  const secretaries = candidates.filter((c) => c.category.toLowerCase() === "secretary");
-
-  const recognizeSpeech = async (maxNumber) => {
-    return new Promise((resolve) => {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        toast.error("Speech recognition is NOT supported in this browser.");
-        return resolve(null);
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
-      recognition.continuous = false;
-      recognition.maxAlternatives = 1;
-
-      recognition.start();
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript.trim();
-        const number = parseInt(transcript.match(/\d+/)?.[0], 10); // Extract number
-        recognition.stop();
-
-        if (!isNaN(number) && number >= 1 && number <= maxNumber) {
-          resolve(number);
-        } else {
-          toast.error("Invalid choice. Please say a valid number.");
-          resolve(null);
-        }
-      };
-
-      recognition.onerror = (event) => {
-        toast.error(`Speech recognition error: ${event.error}`);
-        recognition.stop();
-        resolve(null);
-      };
-    });
+  }, [voterID, router]);
+  
+  const handleVoteSelection = (category, candidateName) => {
+    setSelectedVotes((prev) => ({
+      ...prev,
+      [category]: candidateName,
+    }));
   };
 
-  useEffect(() => {
-    if (candidates.length === 0) return;
-
-    const initiateVoting = async () => {
-      const getVote = async (category, candidates) => {
-        if (candidates.length === 0) return null;
-
-        await speak(`For the position of ${category}, we have:`);
-        for (let i = 0; i < candidates.length; i++) {
-          await speak(`Number ${i + 1}, ${candidates[i].name}.`);
+  const handleSubmitVote = async () => {
+    if (!voterID) {
+      toast.error("Unauthorized access. Please log in.");
+      router.push("/");
+      return;
+    }
+  
+    if (Object.keys(selectedVotes).length === 0) {
+      toast.error("Please select a candidate for each category.");
+      return;
+    }
+  
+    try {
+      setSubmitting(true);
+  
+      // Prepare votes with candidate IDs
+      const votes = Object.entries(selectedVotes).map(([category, candidateName]) => {
+        // Normalize inputs to ensure case-insensitivity and strip extra spaces
+        const normalizedCandidateName = candidateName.trim().toLowerCase();
+        const normalizedCategory = category.trim().toLowerCase();
+  
+        const candidate = candidates.find((c) => 
+          c.name.trim().toLowerCase() === normalizedCandidateName && 
+          c.category.trim().toLowerCase() === normalizedCategory
+        );
+  
+        if (!candidate) {
+          console.error(`No candidate found for ${category} with name ${candidateName}`);
         }
-        await speak("Say the number of your chosen candidate.");
-
-        let vote = null;
-        while (vote === null) {
-          vote = await recognizeSpeech(candidates.length);
-          if (vote === null) {
-            await speak("Invalid choice. Please try again.");
-          }
-        }
-
-        return candidates[vote - 1].name;
-      };
-
-      const presidentVote = await getVote("President", presidents);
-      if (presidentVote) {
-        await axios.post("http://localhost:5000/api/vote/cast-vote", {
-          category: "president",
-          vote: presidentVote,
-        });
+  
+        return {
+          category,
+          candidateID: candidate ? candidate._id : null,
+        };
+      }).filter(vote => vote.candidateID); // Remove any votes without valid candidate ID
+  
+      if (votes.length === 0) {
+        toast.error("Invalid candidate selected.");
+        return;
       }
+  
+      // Send the vote request with candidateID
+      await axios.post("http://localhost:5000/api/vote/cast-vote", {
+        uniqueNumber: voterID,
+        votes,
+      });
+      toast.success("Vote successfully cast!");
+      setTimeout(() => router.push("/"), 3000);
+    } catch (error) {
+      toast.error(error.response?.data?.msg || "Failed to submit vote.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  
+  
 
-      const secretaryVote = await getVote("Secretary", secretaries);
-      if (secretaryVote) {
-        await axios.post("http://localhost:5000/api/vote/cast-vote", {
-          category: "secretary",
-          vote: secretaryVote,
-        });
-      }
-
-      await speak("Thank you for voting. You will now be logged out.");
-      setTimeout(() => router.push("/"), 4000);
-    };
-
-    initiateVoting();
-  }, [candidates]);
+  const categories = ["President", "Secretary"];
 
   return (
     <div className="h-screen">
@@ -141,24 +118,53 @@ const CastVotePage = () => {
         </div>
       ) : (
         <div className="mt-10 flex items-center flex-col">
-          {[{ title: "President Candidates", list: presidents }, { title: "Secretary Candidates", list: secretaries }].map(
-            (section, index) => (
-              <div key={index} className="mt-12">
-                <h3 className="text-xl font-bold mb-4 text-center">{section.title}</h3>
-                <div className="flex items-center md:gap-20 gap-4 px-3">
-                  {section.list.map((candidate, i) => (
-                    <div
-                      key={candidate._id}
-                      className="flex items-center flex-col gap-2 capitalize shadow-md border border-[#e57226] rounded-md px-12 py-10"
-                    >
-                      <IoPersonCircleSharp size={50} />
-                      <p>{i + 1}. {candidate.name}</p>
-                    </div>
-                  ))}
+          {categories.map((category, index) => {
+            const categoryCandidates = candidates.filter(
+              (c) => c.category.toLowerCase() === category.toLowerCase()
+            );
+            return (
+              <div key={index} className="mt-12 w-full max-w-2xl">
+                <h3 className="text-xl font-bold mb-4 text-center">{category} Candidates</h3>
+                <div className="flex flex-col gap-4">
+                  {categoryCandidates.length === 0 ? (
+                    <p>No candidates available for {category}</p>
+                  ) : (
+                    categoryCandidates.map((candidate) => (
+                      <div
+                        key={candidate._id}
+                        className={`flex items-center justify-between p-4 border rounded-md ${
+                          selectedVotes[category] === candidate.name
+                            ? "border-[#e57226] bg-[#ffe6d4]"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <IoPersonCircleSharp size={50} />
+                          <p className="capitalize">{candidate.name}</p>
+                        </div>
+                        <button
+                          onClick={() => handleVoteSelection(category, candidate.name)}
+                          className="px-4 py-2 bg-[#e57226] text-white rounded-md"
+                        >
+                          {selectedVotes[category] === candidate.name
+                            ? "Selected"
+                            : "Vote"}
+                        </button>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
-            )
-          )}
+            );
+          })}
+
+          <button
+            onClick={handleSubmitVote}
+            className="mt-10 px-6 py-3 bg-green-600 text-white rounded-md disabled:opacity-50"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit Vote"}
+          </button>
         </div>
       )}
     </div>
