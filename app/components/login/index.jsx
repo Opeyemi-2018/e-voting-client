@@ -3,19 +3,19 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useVoter } from "@/app/context";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [voterID, setVoterID] = useState("");
-  const [error, setError] = useState("");
   const router = useRouter();
-  const { setVoterID: setGlobalVoterID } = useVoter(); 
+  const { setVoterID: setGlobalVoterID } = useVoter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!voterID.trim()) {
-      setError("Voter ID is required.");
+      toast.error("Voter ID is required.");
       return;
     }
 
@@ -31,15 +31,17 @@ const Login = () => {
         setGlobalVoterID(voterID.trim().toUpperCase()); // Store voter ID in context
         router.push("/cast-vote");
       } else {
-        setError("Invalid or already used voter ID.");
+        toast.error("Invalid or already used voter ID.");
       }
     } catch (error) {
-      setError("Error verifying voter ID. Please try again.");
+      toast.error("Invalid or already used voter ID.");
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#f8f6f4]">
+      <ToastContainer />
+
       <h2 className="text-2xl font-bold mb-4">Enter Your Voter ID</h2>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
@@ -58,8 +60,6 @@ const Login = () => {
           Login
         </button>
       </form>
-
-      {error && <p className="text-red-500 mt-3">{error}</p>}
     </div>
   );
 };
