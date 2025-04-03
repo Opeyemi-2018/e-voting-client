@@ -150,7 +150,7 @@ const CastVotePage = () => {
                         }`}
                       >
                         <div className="flex items-center md:flex-row flex-col md:gap-4 gap-1">
-                          {/* Candidate Image */}
+                          
                           <img
                             src={`http://localhost:5000${candidate.image}`}
                             alt={candidate.name}
