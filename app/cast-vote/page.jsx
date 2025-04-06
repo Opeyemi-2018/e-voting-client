@@ -4,7 +4,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader } from "react-spinners";
 import axios from "axios";
-import { IoPersonCircleSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useVoter } from "@/app/context";
 import { Modal } from "antd";
@@ -64,7 +63,6 @@ const CastVotePage = () => {
 
     try {
       setSubmitting(true);
-
       const votes = Object.entries(selectedVotes)
         .map(([category, candidateName]) => {
           const candidate = candidates.find(
@@ -80,7 +78,7 @@ const CastVotePage = () => {
         toast.error("Invalid candidate selection.");
         return;
       }
-
+      setLoading(true);
       await axios.post("http://localhost:5000/api/vote/cast-vote", {
         uniqueNumber: voterID,
         votes,
@@ -92,6 +90,7 @@ const CastVotePage = () => {
     } finally {
       setSubmitting(false);
       setModalVisible(false);
+      setLoading(false);
     }
   };
 
@@ -150,7 +149,6 @@ const CastVotePage = () => {
                         }`}
                       >
                         <div className="flex items-center md:flex-row flex-col md:gap-4 gap-1">
-                          
                           <img
                             src={`http://localhost:5000${candidate.image}`}
                             alt={candidate.name}
@@ -191,31 +189,44 @@ const CastVotePage = () => {
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
-          <button
-            key="back"
-            onClick={handleDeleteVote}
-            className="px-4 w-full sm:w-auto py-2 bg-gray-600 text-white rounded-md"
-          >
-            Delete Vote
-          </button>,
-          <button
-            key="submit"
-            onClick={handleConfirmVote}
-            className="px-4 w-full sm:w-auto py-2 bg-[#e57226] text-white rounded-md"
-          >
-            Confirm Vote
-          </button>,
+          <div className="flex gap-4 justify-end">
+            <button
+              key="back"
+              onClick={handleDeleteVote}
+              className="px-4 w-full sm:w-auto py-2 bg-[#443227] text-white rounded-md"
+            >
+              Delete Vote
+            </button>
+            ,
+            <button
+              key="submit"
+              onClick={handleConfirmVote}
+              className="px-4 w-full sm:w-auto py-2 bg-[#e57226] text-white rounded-md"
+            >
+              Confirm Vote
+            </button>
+            ,
+          </div>,
         ]}
       >
-        <div className="text-[15px] text-[#443227]">
-          <h3 className="">Votes:</h3>
-          <ul>
-            {sortedCategories.map((category) => (
-              <li key={category}>
-                {category}: {selectedVotes[category] || "Not selected"}
-              </li>
-            ))}
-          </ul>
+        <div className="flex justify-between">
+          <div className="text-[15px] text-[#443227]">
+            <h3 className="">Votes:</h3>
+            <ul>
+              {sortedCategories.map((category) => (
+                <li key={category}>
+                  {category}: {selectedVotes[category] || "Not selected"}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {loading && (
+            <div className="spinner  flex flex-col items-center gap-3 justify-center">
+              <p>casting....</p>
+              <ClipLoader color="#443227" size={25} loading={loading} />
+            </div>
+           )} 
         </div>
       </Modal>
     </div>

@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import { useVoter } from "@/app/context";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ClipLoader } from "react-spinners";
+
 
 const Login = () => {
   const [voterID, setVoterID] = useState("");
+  const [loading, setLoading] = useState(false)
   const router = useRouter();
   const { setVoterID: setGlobalVoterID } = useVoter();
 
@@ -20,6 +23,7 @@ const Login = () => {
     }
 
     try {
+      setLoading(true)
       const res = await axios.post(
         "http://localhost:5000/api/unique-number/verify-uniqueID",
         {
@@ -30,11 +34,14 @@ const Login = () => {
       if (res.data.success) {
         setGlobalVoterID(voterID.trim().toUpperCase()); // Store voter ID in context
         router.push("/cast-vote");
+        setLoading(false)
       } else {
         toast.error("Invalid or already used voter ID.");
       }
     } catch (error) {
       toast.error("Invalid or already used voter ID.");
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -57,7 +64,14 @@ const Login = () => {
           type="submit"
           className="bg-[#e57226] text-white px-6 py-3 rounded-lg hover:bg-[#b18161] transition"
         >
-          Login
+          {loading ? (
+                  <div className="spinner  flex items-center gap-3 justify-center">
+                    <p>Verifying....</p>
+                    <ClipLoader color="white" size={25} loading={loading} />
+                  </div>
+                ) : (
+                  "Verify"
+                )}
         </button>
       </form>
     </div>
