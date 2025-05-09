@@ -29,7 +29,7 @@ const CastVotePage = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:5000/api/candidate/get-candidate"
+          "https://e-voting-server-bxpt.onrender.com/api/candidate/get-candidate"
         );
         setCandidates(res.data);
       } catch (error) {
@@ -79,7 +79,7 @@ const CastVotePage = () => {
         return;
       }
       setLoading(true);
-      await axios.post("http://localhost:5000/api/vote/cast-vote", {
+      await axios.post("https://e-voting-server-bxpt.onrender.com/api/vote/cast-vote", {
         uniqueNumber: voterID,
         votes,
       });
