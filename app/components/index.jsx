@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const LandingPage = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -12,7 +13,7 @@ const LandingPage = () => {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <div className="min-h-screen  max-w-6xl mx-auto  p-6">
+    <div className="min-h-screen  max-w-6xl mx-auto  p-6 flex flex-col items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={showContent ? { opacity: 1, y: 0 } : {}}
@@ -20,12 +21,12 @@ const LandingPage = () => {
         className="text-center flex flex-col justify-center items-center"
       >
         <motion.h1
-          className="text-3xl font-bold text-blue-700 mb-4"
+          className="text-3xl font-bold text-[#b72522] mb-4"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          🗳️ Welcome to the National Voting Portal
+          🗳️ Welcome to the Student Voting Portal
         </motion.h1>
 
         <motion.p
@@ -37,7 +38,7 @@ const LandingPage = () => {
           Your voice. Your vote. Your future.
         </motion.p>
 
-        <ul className="text-left text-gray-700 mb-6 space-y-2">
+        <ul className="text-left text-gray-700 mb-6 space-y-4">
           <li>
             ✅ <strong>Log in</strong> to access your voting dashboard
           </li>
@@ -46,9 +47,6 @@ const LandingPage = () => {
           </li>
           <li>
             🗳️ <strong>Cast your vote</strong> securely and confidently
-          </li>
-          <li>
-            📄 <strong>Get a confirmation receipt</strong> after voting
           </li>
         </ul>
 
@@ -59,11 +57,14 @@ const LandingPage = () => {
         </p>
 
         <div className="flex justify-center gap-4">
-          <button className="px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+          <Link
+            href="/login"
+            className="px-5 py-2 bg-[#b72522] hover:bg-[#6b1210] text-white rounded-full  transition"
+          >
             Login to Vote
-          </button>
+          </Link>
           <button className="px-5 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition">
-            Visit FAQ
+            Check Result
           </button>
         </div>
 

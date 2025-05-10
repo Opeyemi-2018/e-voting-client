@@ -114,9 +114,9 @@ const CastVotePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8f6f4]">
+    <div className="mt-16">
       <ToastContainer />
-      <h2 className="text-2xl text-center font-bold bg-[#e57226] uppercase text-white w-full py-7">
+      <h2 className="text-2xl text-center font-bold  uppercase text-[#b72522] w-full py-7">
         Welcome to the voting phase
       </h2>
       {loading ? (
@@ -131,7 +131,7 @@ const CastVotePage = () => {
               (c) => c.category === category
             );
             return (
-              <div key={index} className="mt-12 w-full max-w-2xl">
+              <div key={index} className="mt-4 w-full max-w-2xl">
                 <h3 className="text-xl font-bold mb-4 text-center text-[#443227]">
                   {category} Candidates
                 </h3>
@@ -142,9 +142,9 @@ const CastVotePage = () => {
                     categoryCandidates.map((candidate) => (
                       <div
                         key={candidate._id}
-                        className={`flex md:flex-row flex-col md:gap-0 gap-3 items-center justify-between p-4 border rounded-md ${
+                        className={`flex md:flex-row flex-col md:gap-0 gap-3 items-center justify-between p-2 border rounded-md ${
                           selectedVotes[category] === candidate.name
-                            ? "border-[#e57226] bg-[#ffe6d4]"
+                            ? "border-[#b72522] bg-[#ffe6d4]"
                             : "border-gray-300"
                         }`}
                       >
@@ -160,7 +160,7 @@ const CastVotePage = () => {
                           onClick={() =>
                             handleVoteSelection(category, candidate.name)
                           }
-                          className="px-4 py-2 w-full sm:w-auto bg-[#e57226] text-white rounded-md"
+                          className="px-4 py-2 w-full sm:w-auto bg-[#b72522] text-white rounded-md"
                         >
                           {selectedVotes[category] === candidate.name
                             ? "Selected"
@@ -176,7 +176,7 @@ const CastVotePage = () => {
 
           <button
             onClick={handleOpenModal}
-            className="my-10 px-6 py-3 w-full sm:w-auto bg-[#e57226] text-white rounded-md disabled:opacity-50"
+            className="my-10 px-6 py-3 w-full sm:w-auto bg-[#b72522] text-white rounded-md disabled:opacity-50"
             disabled={submitting}
           >
             {submitting ? "Submitting..." : "Submit Vote"}
@@ -186,7 +186,7 @@ const CastVotePage = () => {
 
       <Modal
         title="Confirm Your Vote"
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
           <div className="flex gap-4 justify-end">
@@ -201,7 +201,7 @@ const CastVotePage = () => {
             <button
               key="submit"
               onClick={handleConfirmVote}
-              className="px-4 w-full sm:w-auto py-2 bg-[#e57226] text-white rounded-md"
+              className="px-4 w-full sm:w-auto py-2 bg-[#b72522] text-white rounded-md"
             >
               Confirm Vote
             </button>
@@ -211,10 +211,10 @@ const CastVotePage = () => {
       >
         <div className="flex justify-between">
           <div className="text-[15px] text-[#443227]">
-            <h3 className="">Votes:</h3>
-            <ul>
+            <h3 className="">Kindly go through before submitting </h3>
+            <ul className="font-semibold space-y-2">
               {sortedCategories.map((category) => (
-                <li key={category}>
+                <li key={category} >
                   {category}: {selectedVotes[category] || "Not selected"}
                 </li>
               ))}

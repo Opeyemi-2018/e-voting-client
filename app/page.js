@@ -1,11 +1,9 @@
 import React from "react";
-// import Login from "./components/login";
-import LandingPage from "./Home/page";
+import LandingPage from "./components";
 
 const page = () => {
   return (
-    <div className="bg-[#e1dfd3]">
-      {/* <Login /> */}
+    <div className="">
       <LandingPage />
     </div>
   );
