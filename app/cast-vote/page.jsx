@@ -21,7 +21,7 @@ const CastVotePage = () => {
   useEffect(() => {
     if (!voterID) {
       toast.error("Unauthorized access. Please log in first.");
-      router.push("/");
+      router.push("/login");
       return;
     }
 

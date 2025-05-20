@@ -38,7 +38,7 @@ const LandingPage = () => {
           Your voice. Your vote. Your future.
         </motion.p>
 
-        <ul className="text-left text-gray-700 mb-6 space-y-4">
+        <ul className="text-left text-gray-700 mb-6 space-y-6">
           <li>
             ✅ <strong>Log in</strong> to access your voting dashboard
           </li>
@@ -63,9 +63,10 @@ const LandingPage = () => {
           >
             Login to Vote
           </Link>
-          <button className="px-5 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition">
+          <Link
+            href="/result" className="px-5 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition">
             Check Result
-          </button>
+          </Link>
         </div>
 
         <p className="mt-6 text-xs text-gray-400">
