@@ -24,8 +24,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <Navbar/>
-        <VoterProvider>{children}</VoterProvider>
+        <VoterProvider>
+          <Navbar />
+          {children}
+        </VoterProvider>
       </body>
     </html>
   );

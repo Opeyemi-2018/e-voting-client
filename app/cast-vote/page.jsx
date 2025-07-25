@@ -20,8 +20,8 @@ const CastVotePage = () => {
 
   useEffect(() => {
     if (!voterID) {
-      toast.error("Unauthorized access. Please log in first.");
-      router.push("/login");
+      toast.error("Please log in through the vote login page.");
+      router.push("/voteLogin");
       return;
     }
 
@@ -29,7 +29,8 @@ const CastVotePage = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "https://e-voting-server-bxpt.onrender.com/api/candidate/get-candidate"
+          // "https://e-voting-server-bxpt.onrender.com/api/candidate/get-candidate"
+          "http://localhost:5000/api/candidate/get-candidate"
         );
         setCandidates(res.data);
       } catch (error) {
@@ -40,7 +41,7 @@ const CastVotePage = () => {
     };
 
     fetchCandidates();
-  }, [voterID, router]);
+  }, [router]);
 
   const handleVoteSelection = (category, candidateName) => {
     setSelectedVotes((prev) => ({ ...prev, [category]: candidateName }));
@@ -57,7 +58,7 @@ const CastVotePage = () => {
   const handleConfirmVote = async () => {
     if (!voterID) {
       toast.error("Unauthorized access. Please log in.");
-      router.push("/");
+      router.push("/studentAuth");
       return;
     }
 
@@ -79,10 +80,14 @@ const CastVotePage = () => {
         return;
       }
       setLoading(true);
-      await axios.post("https://e-voting-server-bxpt.onrender.com/api/vote/cast-vote", {
-        uniqueNumber: voterID,
-        votes,
-      });
+      await axios.post(
+        "http://localhost:5000/api/vote/cast-vote",
+        // "https://e-voting-server-bxpt.onrender.com/api/vote/cast-vote",
+        {
+          matricNumber: voterID,
+          votes,
+        }
+      );
       toast.success("Vote successfully cast!");
       setTimeout(() => router.push("/"), 3000);
     } catch (error) {
@@ -189,7 +194,7 @@ const CastVotePage = () => {
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
-          <div className="flex gap-4 justify-end">
+          <div key="modal-footer" className="flex gap-4 justify-end">
             <button
               key="back"
               onClick={handleDeleteVote}
@@ -214,7 +219,7 @@ const CastVotePage = () => {
             <h3 className="">Kindly go through before submitting </h3>
             <ul className="font-semibold space-y-2">
               {sortedCategories.map((category) => (
-                <li key={category} >
+                <li key={category}>
                   {category}: {selectedVotes[category] || "Not selected"}
                 </li>
               ))}
@@ -226,7 +231,7 @@ const CastVotePage = () => {
               <p>casting....</p>
               <ClipLoader color="#443227" size={25} loading={loading} />
             </div>
-           )} 
+          )}
         </div>
       </Modal>
     </div>
