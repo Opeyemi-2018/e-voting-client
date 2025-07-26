@@ -155,10 +155,11 @@ const CastVotePage = () => {
                       >
                         <div className="flex items-center md:flex-row flex-col md:gap-4 gap-1">
                           <img
-                            src={`http://localhost:5000${candidate.image}`}
+                            src={candidate.image}
                             alt={candidate.name}
                             className="md:w-36 w-full md:h-36 h-full rounded-sm object-cover"
                           />
+
                           <p className="capitalize">{candidate.name}</p>
                         </div>
                         <button

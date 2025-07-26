@@ -10,7 +10,7 @@ import { useVoter } from "../context";
 const Navbar = () => {
   const [showNav, setShowNav] = useState(false);
   const pathName = usePathname();
-  const { student } = useVoter(); // <-- get student from context
+  const { student } = useVoter();
 
   return (
     <div className="relative">
@@ -35,12 +35,15 @@ const Navbar = () => {
               >
                 Cast Vote
               </Link>
-              <Link
-                href="/studentAuth/signin"
-                className="font-semibold text-[17px] text-blue-600"
-              >
-                Login
-              </Link>
+              {!student && (
+                <Link
+                  href="/studentAuth/signin"
+                  className="font-semibold text-[17px] text-blue-600"
+                >
+                  Login
+                </Link>
+              )}
+
               {student && (
                 <Link
                   href="/studentDashboard"
@@ -49,7 +52,6 @@ const Navbar = () => {
                   Dashboard
                 </Link>
               )}
-             
             </ul>
           </nav>
 

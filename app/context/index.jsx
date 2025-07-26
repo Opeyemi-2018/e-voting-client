@@ -69,7 +69,7 @@ export const VoterProvider = ({ children }) => {
         setStudent,
         token,
         setToken,
-        signOut, // <--- Include signOut here
+        signOut, 
       }}
     >
       {children}
