@@ -3,7 +3,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-gray-800 mt-10">
       {/* Hero Section */}
-      <section className="bg-blue-50 py-18 px-6 text-center">
+      <section className="bg-[#e1dfd3] py-18 px-6 text-center">
         <h1 className="text-4xl font-bold mb-4">OAUSTECH Academic Portal</h1>
         <p className="text-lg max-w-2xl mx-auto mb-6">
           A centralized digital platform tailored for Olusegun Agagu University
@@ -12,14 +12,14 @@ export default function HomePage() {
         </p>
         <Link
           href={"studentAuth"}
-          className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition"
+          className="bg-[#443227] text-white px-6 py-3 rounded-md hover:bg-blue-700 transition"
         >
           Access Portal
         </Link>
       </section>
 
       {/* Call to Action */}
-      <section className="bg-blue-600 text-white py-20 text-center px-6">
+      <section className="bg-[#443227] text-white py-20 text-center px-6">
         <h2 className="text-3xl font-bold mb-4">
           Simplifying OAUSTECH Academics Digitally
         </h2>
@@ -29,7 +29,7 @@ export default function HomePage() {
         </p>
         <Link
           href={"/studentAuth/signin"}
-          className="bg-white text-blue-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition"
+          className="bg-white text-black px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition"
         >
           Login to Portal
         </Link>

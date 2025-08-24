@@ -227,10 +227,10 @@ const CastVotePage = () => {
             </ul>
           </div>
 
-          {loading && (
+          {submitting && (
             <div className="spinner  flex flex-col items-center gap-3 justify-center">
               <p>casting....</p>
-              <ClipLoader color="#443227" size={25} loading={loading} />
+              <ClipLoader color="#443227" size={25} loading={submitting} />
             </div>
           )}
         </div>

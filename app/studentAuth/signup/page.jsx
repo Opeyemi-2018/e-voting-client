@@ -80,7 +80,7 @@ export default function SignUpPage() {
         />
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full bg-[#b72522] text-white py-2 rounded "
         >
           Sign Up
         </button>
@@ -88,7 +88,7 @@ export default function SignUpPage() {
 
       <p className="mt-4">
         Already have an account?{" "}
-        <a href="/sign-in" className="text-blue-600 hover:underline">
+        <a href="/sign-in" className="text-[#b72522] hover:underline">
           Sign in here
         </a>
       </p>

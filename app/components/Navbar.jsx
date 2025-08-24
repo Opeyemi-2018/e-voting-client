@@ -18,27 +18,27 @@ const Navbar = () => {
       <div className="fixed top-0 z-40 w-full bg-background/60 backdrop-blur-xl border-b">
         <div className="max-w-5xl mx-auto p-3 flex items-center justify-between">
           <Link href="/">
-            <MdHowToVote size={30} className="text-blue-600" />
+            <MdHowToVote size={30} className="text-[#443227]" />
           </Link>
 
           <nav>
             <ul className="md:flex hidden items-center cursor-pointer justify-between md:gap-6 gap-5 text-[18px]">
               <Link
                 href="/"
-                className="font-semibold text-[17px] text-gray-600"
+                className="font-semibold text-[17px] text-[#443227]"
               >
                 Home
               </Link>
               <Link
                 href="/cast-vote"
-                className="font-semibold text-[17px] text-blue-600"
+                className="font-semibold text-[17px] text-[#443227]"
               >
                 Cast Vote
               </Link>
               {!student && (
                 <Link
                   href="/studentAuth/signin"
-                  className="font-semibold text-[17px] text-blue-600"
+                  className="font-semibold text-[17px] text-[#443227]"
                 >
                   Login
                 </Link>
@@ -47,7 +47,7 @@ const Navbar = () => {
               {student && (
                 <Link
                   href="/studentDashboard"
-                  className="font-semibold text-[17px] text-blue-600"
+                  className="font-semibold text-[17px] text-[#443227]"
                 >
                   Dashboard
                 </Link>
@@ -72,7 +72,7 @@ const Navbar = () => {
           }`}
         >
           <nav>
-            <ul className="flex flex-col gap-4 text-[18px] text-blue-600">
+            <ul className="flex flex-col gap-4 text-[18px] text-[#443227]">
               <Link
                 href="/"
                 onClick={() => setShowNav(false)}
