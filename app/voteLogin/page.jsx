@@ -72,7 +72,7 @@ const Login = () => {
       setStudent(student);
       setToken(token);
 
-      toast.success("Login successful!");
+      toast.success("access approved!");
       router.push("/cast-vote");
     } catch (error) {
       if (error.response && error.response.data) {
@@ -86,9 +86,9 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center px-5 justify-center h-screen">
       <ToastContainer position="top-right" autoClose={5000} />
-      <h2 className="text-2xl font-bold mb-4">Login to Vote</h2>
+      <h2 className="text-[20px]  mb-4">kindly provide your matric no and password to access the voting phase</h2>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4 w-80">
         <input

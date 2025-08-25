@@ -26,7 +26,6 @@ const CastVotePage = () => {
       router.push("/voteLogin");
       return;
     }
-
     const fetchCandidates = async () => {
       try {
         setLoading(true);
@@ -115,7 +114,7 @@ const CastVotePage = () => {
       );
 
       toast.success("Vote successfully cast!");
-      setTimeout(() => router.push("/"), 3000);
+      setTimeout(() => router.push("/studentDashboard"), 3000);
     } catch (error) {
       toast.error(error.response?.data?.msg || "Failed to submit vote.");
     } finally {
