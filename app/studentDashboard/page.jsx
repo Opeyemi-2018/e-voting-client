@@ -13,7 +13,7 @@ export default function StudentProfileDashboard() {
   const { signOut } = useVoter();
 
   const handleSignOut = async () => {
-    await signOut(); // call context method
+    await signOut(); 
     router.push("/studentAuth/signin"); // redirect
   };
 
@@ -30,7 +30,7 @@ export default function StudentProfileDashboard() {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/student-auth/student-profile/${student._id}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/student-auth/student-profile/${student._id}`,
           {
             method: "GET",
             credentials: "include",

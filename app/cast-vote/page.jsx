@@ -15,6 +15,8 @@ const CastVotePage = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const router = useRouter();
 
@@ -29,8 +31,8 @@ const CastVotePage = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          // "https://e-voting-server-bxpt.onrender.com/api/candidate/get-candidate"
-          "http://localhost:5000/api/candidate/get-candidate"
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/candidate/get-candidate`,
+          { withCredentials: true }
         );
         setCandidates(res.data);
       } catch (error) {
@@ -43,8 +45,32 @@ const CastVotePage = () => {
     fetchCandidates();
   }, [router]);
 
+  const categoryOrder = [
+    "President",
+    "Vice President",
+    "General Secretary",
+    "Assistant General Secretary",
+    "PRO",
+  ];
+
+  const availableCategories = [...new Set(candidates.map((c) => c.category))];
+  const sortedCategories = categoryOrder.filter((cat) =>
+    availableCategories.includes(cat)
+  );
+
+  useEffect(() => {
+    if (sortedCategories.length > 0 && !activeCategory) {
+      setActiveCategory(sortedCategories[0]);
+    }
+  }, [sortedCategories, activeCategory]);
+
   const handleVoteSelection = (category, candidateName) => {
     setSelectedVotes((prev) => ({ ...prev, [category]: candidateName }));
+  };
+
+  const handleCategoryClick = (category) => {
+    setActiveCategory(category);
+    setSidebarOpen(false); 
   };
 
   const handleOpenModal = () => {
@@ -81,13 +107,13 @@ const CastVotePage = () => {
       }
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/api/vote/cast-vote",
-        // "https://e-voting-server-bxpt.onrender.com/api/vote/cast-vote",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/vote/cast-vote`,
         {
           matricNumber: voterID,
           votes,
         }
       );
+
       toast.success("Vote successfully cast!");
       setTimeout(() => router.push("/"), 3000);
     } catch (error) {
@@ -105,134 +131,264 @@ const CastVotePage = () => {
     toast.info("Vote selection has been reset.");
   };
 
-  const categoryOrder = [
-    "President",
-    "Vice President",
-    "General Secretary",
-    "Assistant General Secretary",
-    "PRO",
-  ];
-
-  const availableCategories = [...new Set(candidates.map((c) => c.category))];
-  const sortedCategories = categoryOrder.filter((cat) =>
-    availableCategories.includes(cat)
+  const activeCategoryCandidates = candidates.filter(
+    (c) => c.category === activeCategory
   );
 
+  const getSelectedCount = () => Object.keys(selectedVotes).length;
+
   return (
-    <div className="mt-16">
+    <div className="mt-16 min-h-screen bg-gray-50">
       <ToastContainer />
-      <h2 className="text-2xl text-center font-bold  uppercase text-[#b72522] w-full py-7">
-        Welcome to the voting phase
-      </h2>
+
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <h2 className="text-3xl font-bold text-center uppercase text-[#b72522]">
+            Welcome to the voting phase
+          </h2>
+          <p className="text-center text-gray-600 mt-2">
+            Select your preferred candidate for each category
+          </p>
+        </div>
+      </div>
+
       {loading ? (
-        <div className="spinner flex-col gap-6 flex items-center h-screen justify-center">
-          <p>Please wait while your data loads</p>
-          <ClipLoader color="#e57226" size={50} loading={loading} />
+        <div className="flex flex-col gap-6 items-center justify-center h-96">
+          <p className="text-gray-600">Please wait while your data loads</p>
+          <ClipLoader color="#b72522" size={50} loading={loading} />
         </div>
       ) : (
-        <div className="mt-10 flex items-center flex-col px-3">
-          {sortedCategories.map((category, index) => {
-            const categoryCandidates = candidates.filter(
-              (c) => c.category === category
-            );
-            return (
-              <div key={index} className="mt-4 w-full max-w-2xl">
-                <h3 className="text-xl font-bold mb-4 text-center text-[#443227]">
-                  {category} Candidates
-                </h3>
-                <div className="flex flex-col gap-4">
-                  {categoryCandidates.length === 0 ? (
-                    <p>No candidates available for {category}</p>
-                  ) : (
-                    categoryCandidates.map((candidate) => (
-                      <div
-                        key={candidate._id}
-                        className={`flex md:flex-row flex-col md:gap-0 gap-3 items-center justify-between p-2 border rounded-md ${
-                          selectedVotes[category] === candidate.name
-                            ? "border-[#b72522] bg-[#ffe6d4]"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        <div className="flex items-center md:flex-row flex-col md:gap-4 gap-1">
-                          <img
-                            src={candidate.image}
-                            alt={candidate.name}
-                            className="md:w-36 w-full md:h-36 h-full rounded-sm object-cover"
-                          />
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Mobile Toggle Button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden bg-[#b72522] text-white px-4 py-2 rounded-lg flex items-center justify-between mb-4"
+            >
+              <span>
+                Categories ({getSelectedCount()}/{sortedCategories.length})
+              </span>
+              <svg
+                className={`w-5 h-5 transform transition-transform ${
+                  sidebarOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
 
-                          <p className="capitalize">{candidate.name}</p>
-                        </div>
-                        <button
-                          onClick={() =>
-                            handleVoteSelection(category, candidate.name)
-                          }
-                          className="px-4 py-2 w-full sm:w-auto bg-[#b72522] text-white rounded-md"
-                        >
-                          {selectedVotes[category] === candidate.name
-                            ? "Selected"
-                            : "Vote"}
-                        </button>
+            {/* Categories Sidebar */}
+            <div
+              className={`lg:w-80 ${sidebarOpen ? "block" : "hidden lg:block"}`}
+            >
+              <div className="bg-white rounded-lg shadow-md p-4">
+                <h3 className="text-lg font-semibold text-[#443227] mb-4">
+                  Categories
+                </h3>
+                <div className="space-y-2">
+                  {sortedCategories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => handleCategoryClick(category)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                        activeCategory === category
+                          ? "bg-[#b72522] text-white"
+                          : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{category}</span>
+                        {selectedVotes[category] && (
+                          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                        )}
                       </div>
-                    ))
-                  )}
+                      {selectedVotes[category] && (
+                        <div className="text-sm mt-1 opacity-90">
+                          {selectedVotes[category]}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-6 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-sm text-gray-600">
+                    Progress: {getSelectedCount()} of {sortedCategories.length}{" "}
+                    categories
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div
+                      className="bg-[#b72522] h-2 rounded-full transition-all"
+                      style={{
+                        width: `${
+                          (getSelectedCount() / sortedCategories.length) * 100
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
 
-          <button
-            onClick={handleOpenModal}
-            className="my-10 px-6 py-3 w-full sm:w-auto bg-[#b72522] text-white rounded-md disabled:opacity-50"
-            disabled={submitting}
-          >
-            {submitting ? "Submitting..." : "Submit Vote"}
-          </button>
+            {/* Candidates Display Area */}
+            <div className="flex-1">
+              {activeCategory ? (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-2xl font-bold mb-6 text-[#443227] border-b pb-3">
+                    {activeCategory} Candidates
+                  </h3>
+
+                  {activeCategoryCandidates.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="text-gray-400 text-6xl mb-4">🗳️</div>
+                      <p className="text-gray-600">
+                        No candidates available for {activeCategory}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+                      {activeCategoryCandidates.map((candidate) => (
+                        <div
+                          key={candidate._id}
+                          className={`border-2 rounded-xl p-6 transition-all cursor-pointer ${
+                            selectedVotes[activeCategory] === candidate.name
+                              ? "border-[#b72522] bg-[#ffe6d4] shadow-lg"
+                              : "border-gray-200 hover:border-gray-300 hover:shadow-md"
+                          }`}
+                        >
+                          <div className="flex flex-col items-center text-center">
+                            <img
+                              src={candidate.image}
+                              alt={candidate.name}
+                              className="w-32 h-32 rounded-full object-cover mb-4 border-4 border-gray-100"
+                            />
+                            <h4 className="text-xl font-semibold text-gray-800 mb-3 capitalize">
+                              {candidate.name}
+                            </h4>
+                            <button
+                              onClick={() =>
+                                handleVoteSelection(
+                                  activeCategory,
+                                  candidate.name
+                                )
+                              }
+                              className={`px-8 py-3 rounded-lg font-semibold transition-all ${
+                                selectedVotes[activeCategory] === candidate.name
+                                  ? "bg-[#b72522] text-white"
+                                  : "bg-gray-100 text-gray-700 hover:bg-[#b72522] hover:text-white"
+                              }`}
+                            >
+                              {selectedVotes[activeCategory] === candidate.name
+                                ? "✓ Selected"
+                                : "Select Candidate"}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-md p-12 text-center">
+                  <div className="text-gray-400 text-6xl mb-4">📋</div>
+                  <p className="text-gray-600">
+                    Select a category to view candidates
+                  </p>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <div className="mt-8 text-center">
+                <button
+                  onClick={handleOpenModal}
+                  className="px-8 py-4 bg-[#b72522] text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#a01e1b] transition-colors"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <div className="flex items-center gap-2">
+                      <ClipLoader color="white" size={20} />
+                      Submitting...
+                    </div>
+                  ) : (
+                    `Submit Vote (${getSelectedCount()}/${
+                      sortedCategories.length
+                    })`
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
+      {/* Confirmation Modal */}
       <Modal
-        title="Confirm Your Vote"
+        title={
+          <div className="text-xl font-bold text-[#443227]">
+            Confirm Your Vote
+          </div>
+        }
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
-        footer={[
-          <div key="modal-footer" className="flex gap-4 justify-end">
-            <button
-              key="back"
-              onClick={handleDeleteVote}
-              className="px-4 w-full sm:w-auto py-2 bg-[#443227] text-white rounded-md"
-            >
-              Delete Vote
-            </button>
-            ,
-            <button
-              key="submit"
-              onClick={handleConfirmVote}
-              className="px-4 w-full sm:w-auto py-2 bg-[#b72522] text-white rounded-md"
-            >
-              Confirm Vote
-            </button>
-            ,
-          </div>,
-        ]}
+        footer={null}
+        className="vote-confirmation-modal"
       >
-        <div className="flex justify-between">
-          <div className="text-[15px] text-[#443227]">
-            <h3 className="">Kindly go through before submitting </h3>
-            <ul className="font-semibold space-y-2">
+        <div className="py-4">
+          <p className="text-gray-600 mb-4">
+            Please review your selections before submitting:
+          </p>
+
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="space-y-3">
               {sortedCategories.map((category) => (
-                <li key={category}>
-                  {category}: {selectedVotes[category] || "Not selected"}
-                </li>
+                <div
+                  key={category}
+                  className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0"
+                >
+                  <span className="font-semibold text-gray-700">
+                    {category}:
+                  </span>
+                  <span className="text-gray-900">
+                    {selectedVotes[category] || (
+                      <span className="text-red-500">Not selected</span>
+                    )}
+                  </span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           {submitting && (
-            <div className="spinner  flex flex-col items-center gap-3 justify-center">
-              <p>casting....</p>
+            <div className="flex items-center justify-center gap-3 py-4">
               <ClipLoader color="#443227" size={25} loading={submitting} />
+              <span className="text-gray-600">Casting your vote...</span>
             </div>
           )}
+
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={handleDeleteVote}
+              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              disabled={submitting}
+            >
+              Reset Selection
+            </button>
+            <button
+              onClick={handleConfirmVote}
+              className="px-6 py-2 bg-[#b72522] text-white rounded-lg hover:bg-[#a01e1b] transition-colors"
+              disabled={submitting}
+            >
+              Confirm Vote
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

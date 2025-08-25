@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ClipLoader } from "react-spinners";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function SignUpPage() {
   });
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,10 +21,11 @@ export default function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/student-auth/sign-up",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/student-auth/sign-up`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -37,6 +40,8 @@ export default function SignUpPage() {
       router.push("/studentAuth/signin");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,6 +58,7 @@ export default function SignUpPage() {
           value={form.userName}
           onChange={handleChange}
           className="w-full border border-gray-400 px-4 py-2 rounded"
+          disabled={isLoading}
         />
         <input
           type="email"
@@ -61,6 +67,7 @@ export default function SignUpPage() {
           value={form.email}
           onChange={handleChange}
           className="w-full border border-gray-400 px-4 py-2 rounded"
+          disabled={isLoading}
         />
         <input
           type="text"
@@ -69,6 +76,7 @@ export default function SignUpPage() {
           value={form.matricNumber}
           onChange={handleChange}
           className="w-full border border-gray-400 px-4 py-2 rounded"
+          disabled={isLoading}
         />
         <input
           type="password"
@@ -77,12 +85,21 @@ export default function SignUpPage() {
           value={form.password}
           onChange={handleChange}
           className="w-full border border-gray-400 px-4 py-2 rounded"
+          disabled={isLoading}
         />
         <button
           type="submit"
-          className="w-full bg-[#b72522] text-white py-2 rounded "
+          disabled={isLoading}
+          className="w-full bg-[#b72522] text-white py-2 rounded flex items-center justify-center gap-2 disabled:opacity-70"
         >
-          Sign Up
+          {isLoading ? (
+            <>
+              <ClipLoader color="white" size={25} />
+              Creating Account...
+            </>
+          ) : (
+            "Sign Up"
+          )}
         </button>
       </form>
 

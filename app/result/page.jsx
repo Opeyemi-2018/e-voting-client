@@ -21,15 +21,13 @@ const Page = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:5000/api/candidate/get-candidate"
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/candidate/get-candidate`
         );
         setCandidates(res.data);
         setFilteredCandidates(res.data);
 
         // Get unique categories from candidates
-        const uniqueCategories = [
-          ...new Set(res.data.map((c) => c.category)),
-        ];
+        const uniqueCategories = [...new Set(res.data.map((c) => c.category))];
         setCategories(uniqueCategories);
       } catch (error) {
         toast.error(error.response?.data?.msg || "Failed to fetch candidates");
@@ -61,7 +59,7 @@ const Page = () => {
       key: "image",
       render: (image) => (
         <img
-          src={`http://localhost:5000${image}`}
+          src={`${import.meta.env.VITE_API_URL}${image}`}
           alt="candidate"
           className="rounded-full w-20 h-20 object-cover border border-[#443227]"
         />

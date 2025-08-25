@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVoter } from "@/app/context";
 import Link from "next/link";
+import { ClipLoader } from "react-spinners";
+
 export default function SignInPage() {
   const router = useRouter();
   const { setStudent, setToken } = useVoter();
@@ -13,6 +15,7 @@ export default function SignInPage() {
   });
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,10 +23,11 @@ export default function SignInPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/student-auth/sign-in",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/student-auth/sign-in`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -40,6 +44,8 @@ export default function SignInPage() {
       router.push("/studentDashboard");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -56,6 +62,7 @@ export default function SignInPage() {
           value={form.matricNumber}
           onChange={handleChange}
           className="w-full border border-gray-400 px-4 py-2 rounded"
+          disabled={isLoading}
         />
         <input
           type="password"
@@ -64,12 +71,21 @@ export default function SignInPage() {
           value={form.password}
           onChange={handleChange}
           className="w-full border border-gray-400 px-4 py-2 rounded"
+          disabled={isLoading}
         />
         <button
           type="submit"
-          className="w-full bg-[#b72522] text-white py-2 rounded "
+          disabled={isLoading}
+          className="w-full bg-[#b72522] text-white py-2 rounded flex items-center justify-center gap-2 disabled:opacity-70"
         >
-          Sign In
+          {isLoading ? (
+            <>
+              <ClipLoader color="white" size={25} />
+              Signing In...
+            </>
+          ) : (
+            "Sign In"
+          )}
         </button>
       </form>
 

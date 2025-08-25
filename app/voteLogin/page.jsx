@@ -27,13 +27,13 @@ const Login = () => {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:5000/api/student-auth/sign-in",
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/student-auth/sign-in`,
         {
           matricNumber: matricNumber.trim().toUpperCase(),
           password,
         },
         {
-          withCredentials: true, 
+          withCredentials: true,
         }
       );
 
@@ -45,7 +45,6 @@ const Login = () => {
         return;
       }
 
-      // **Check matric number against stored one**
       const storedStudent = localStorage.getItem("student");
       let storedMatricNumber = null;
       if (storedStudent && storedStudent !== "undefined") {
